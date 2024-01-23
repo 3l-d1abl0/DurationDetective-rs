@@ -1,4 +1,3 @@
-//use clap::Parser;
 use std::fs;
 
 use clap::error::ErrorKind;
@@ -27,8 +26,11 @@ fn is_valid_path(path: &str) -> bool {
 
     match fs::metadata(path) {
         Ok(stat) => {
-            println!("{:?}", stat);
-            true
+            if stat.is_dir() {
+                return true;
+            }
+            println!("{}", "ERR: Expected path to folder".red().bold());
+            false
         }
         Err(err) => {
             println!("ERR: {}", err);
@@ -40,17 +42,15 @@ fn is_valid_path(path: &str) -> bool {
 fn main() {
     let cli = Cli::parse();
 
-    println!("path: {:?}", cli.path);
-    println!("write: {:?}", cli.write);
+    //println!("path: {:?}", cli.path);
+    //println!("write: {:?}", cli.write);
 
     //Extract the trimmed string
     let path = cli.path.trim();
 
-    println!("PATH: {}", path);
+    println!("Path recieved: {}", path);
 
     if !is_valid_path(&path) {
-        println!("{}: not a valid path", path);
-
         let mut cmd = Cli::command();
         cmd.error(
             ErrorKind::ValueValidation,
@@ -60,4 +60,27 @@ fn main() {
     }
 
     //Check for Write: TODO
+
+    println!("Directory to Scan: {} ", path.cyan());
+
+    println!("Total Folder Duration: {}", folder_duration(&path));
+}
+
+fn folder_duration(directory_path: &str) -> f32 {
+    let items = fs::read_dir(directory_path).unwrap();
+
+    //println!("{:?}", items);
+
+    for entry in items {
+        let path = entry.unwrap().path();
+        println!("{}", path.display());
+
+        if path.is_dir() {
+            // Convert PathBuf to &str for the function call
+            let path_str = path.to_str().unwrap();
+            folder_duration(path_str);
+        }
+    }
+
+    1.0
 }
