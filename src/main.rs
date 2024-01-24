@@ -73,14 +73,46 @@ fn folder_duration(directory_path: &str) -> f32 {
 
     for entry in items {
         let path = entry.unwrap().path();
-        println!("{}", path.display());
+        //println!("{}", path.display());
 
+        // Convert PathBuf to &str for the function call
+        let path_str = path.to_str().unwrap();
         if path.is_dir() {
-            // Convert PathBuf to &str for the function call
-            let path_str = path.to_str().unwrap();
             folder_duration(path_str);
+        } else {
+            //If audio video file
+            check_file(path_str);
         }
     }
 
     1.0
+}
+
+fn check_file(file_path_str: &str) -> bool {
+    //println!("{:?}", infer::get_from_path(file_path_str).unwrap());
+    match infer::get_from_path(file_path_str) {
+        Ok(Some(info)) => {
+            //println!("{:?}", info);
+            //println!("mime type: {}", info.mime_type());
+            //println!("extension: {}", info.extension());
+
+            let mime_type: Vec<&str> = info.mime_type().split("/").collect();
+
+            if mime_type[0] == "video" || mime_type[0] == "audio" {
+                true
+            } else {
+                false
+            }
+        }
+        Ok(None) => {
+            //eprintln!("Unknown file type 😞");
+            //eprintln!("If you think infer should be able to recognize this file type open an issue on GitHub!");
+            false
+        }
+        Err(_) => {
+            //eprintln!("Looks like something went wrong 😔");
+            //eprintln!("{}", e);
+            false
+        }
+    }
 }
