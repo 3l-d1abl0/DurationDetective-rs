@@ -1,4 +1,6 @@
 use std::fs;
+use std::intrinsics::mir::Len;
+use std::process::Command;
 
 use clap::error::ErrorKind;
 use clap::{CommandFactory, Parser};
@@ -66,7 +68,8 @@ fn main() {
     println!("Total Folder Duration: {}", folder_duration(&path));
 }
 
-fn folder_duration(directory_path: &str) -> f32 {
+fn folder_duration(directory_path: &str) -> f64 {
+    let mut total_duration: f64 = 0.0;
     let items = fs::read_dir(directory_path).unwrap();
 
     //println!("{:?}", items);
@@ -77,15 +80,30 @@ fn folder_duration(directory_path: &str) -> f32 {
 
         // Convert PathBuf to &str for the function call
         let path_str = path.to_str().unwrap();
+        let current_duration: f64;
         if path.is_dir() {
-            folder_duration(path_str);
+            current_duration = folder_duration(path_str);
+            println!(
+                "{}/ :: {}",
+                path.file_name().unwrap().to_str().unwrap(),
+                current_duration
+            );
+            total_duration += current_duration
         } else {
             //If audio video file
-            check_file(path_str);
+            if check_file(path_str) {
+                current_duration = get_duration(path_str);
+                println!(
+                    "{} :: {}",
+                    path.file_name().unwrap().to_str().unwrap(),
+                    current_duration
+                );
+                total_duration += current_duration
+            }
         }
     }
 
-    1.0
+    total_duration
 }
 
 fn check_file(file_path_str: &str) -> bool {
@@ -113,6 +131,49 @@ fn check_file(file_path_str: &str) -> bool {
             //eprintln!("Looks like something went wrong 😔");
             //eprintln!("{}", e);
             false
+        }
+    }
+}
+
+fn get_duration(file_path_str: &str) -> f64 {
+    //Try ffprobe in the Shell
+    let output_ffprobe = Command::new("ffprobe")
+        .args(&[
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
+        ])
+        .arg(file_path_str)
+        .output()
+        .expect("Error running ffprobe");
+
+    if !output_ffprobe.status.success() {
+        println!("Command executed with failing error code");
+        return 0.0;
+    } else {
+        let duration_str = String::from_utf8_lossy(&output_ffprobe.stdout);
+
+        let duration = duration_str.trim();
+
+        if duration == "N/A" {
+            println!("Parsed duration: {}", duration);
+            return 0.0;
+        } else {
+            match duration.parse::<f64>() {
+                Ok(duration) => {
+                    // Parsing successful, use the `duration` value
+                    //println!("Parsed duration: {}", duration);
+                    return duration;
+                }
+                Err(err) => {
+                    // Handle the parsing error
+                    println!("Error parsing duration: {}", err);
+                    return 0.0;
+                }
+            }
         }
     }
 }
