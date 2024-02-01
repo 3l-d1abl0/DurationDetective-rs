@@ -73,9 +73,25 @@ fn main() {
 
     println!("Directory to Scan: {} ", path.cyan());
 
-    println!("Total Folder Duration: {}", folder_duration(&path, 0));
+    println!(
+        "Total Folder Duration: {}",
+        format_seconds(folder_duration(&path, 0))
+    );
 }
 
+fn format_seconds(seconds: f64) -> String {
+    let total_min = (seconds / 60.0) as i32;
+    let total_hr = (total_min / 60) as i32;
+    let total_sec = (seconds % 60.0) as i32;
+
+    if total_min < 1 {
+        format!("{:.2}sec", total_sec)
+    } else if total_hr < 1 {
+        format!("{:02}min {:02}sec", total_min, total_sec)
+    } else {
+        format!("{}hr {:02}min {:02}sec", total_hr, total_min, total_sec)
+    }
+}
 fn folder_duration(directory_path: &str, folder_level: usize) -> f64 {
     let mut total_duration: f64 = 0.0;
     let items = fs::read_dir(directory_path).unwrap();
@@ -87,7 +103,6 @@ fn folder_duration(directory_path: &str, folder_level: usize) -> f64 {
     while let Some(entry) = items_iter.next() {
         // Check if the next iteration is the last one
         let is_last = items_iter.peek().is_none();
-        //symbol = "└──" if index == lastIndex else "├──"
         let symbol: &str;
         if is_last {
             symbol = SYMBOLS_MAP.get("last").unwrap();
@@ -118,7 +133,7 @@ fn folder_duration(directory_path: &str, folder_level: usize) -> f64 {
                 "{}{}{}  {}",
                 "│   ".repeat(folder_level + 1),
                 SYMBOLS_MAP.get("last").unwrap(),
-                current_duration,
+                format_seconds(current_duration),
                 path.file_name().unwrap().to_str().unwrap()
             );
         } else {
@@ -129,7 +144,7 @@ fn folder_duration(directory_path: &str, folder_level: usize) -> f64 {
                     "{}{}{}  {}",
                     "│   ".repeat(folder_level),
                     symbol,
-                    current_duration,
+                    format_seconds(current_duration),
                     path.file_name().unwrap().to_str().unwrap()
                 );
                 total_duration += current_duration
