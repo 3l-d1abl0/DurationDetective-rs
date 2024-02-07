@@ -1,4 +1,3 @@
-use std::env;
 use std::fs;
 use std::process::Command;
 
@@ -231,9 +230,12 @@ fn get_duration(file_path_str: &str) -> f64 {
 #[cfg(test)]
 mod tests {
 
+    use std::env;
+
     use super::*;
 
     #[test]
+    //Tests if a string is a valid folder path
     fn test_valid_folder_path() {
         //get the cwd
         let path = env::current_dir().unwrap();
@@ -245,5 +247,62 @@ mod tests {
             "Expected a path to a valid folder current:{}",
             path_str
         )
+    }
+
+    #[test]
+    //Test if the function can detect vaious audio video file
+    fn test_audio_video_files() {
+        //Read each audio video file from the samples
+        let mp3_file = "files/audios/mp3/file_example_MP3_2MG.mp3";
+        assert_eq!(check_file(mp3_file), true, "Should detect mp3 audio file");
+
+        let ogg_file = "files/audios/ogg/file_example_OOG_2MG.ogg";
+        assert_eq!(check_file(ogg_file), true, "Should detect ogg audio file");
+
+        let wav_file = "files/audios/wav/file_example_WAV_2MG.wav";
+        assert_eq!(check_file(wav_file), true, "Should detect wav audio file");
+
+        let avi_file = "files/videos/avi/file_example_AVI_1920_2_3MG.avi";
+        assert_eq!(check_file(avi_file), true, "Should detect avi video file");
+
+        let m4v_file = "files/videos/m4v/sample_960x540.m4v";
+        assert_eq!(check_file(m4v_file), true, "Should detect m4v video file");
+
+        let mp4_file = "files/videos/mp4/file_example_MP4_640_3MG.mp4";
+        assert_eq!(check_file(mp4_file), true, "Should detect mp4 video file");
+
+        let mpeg_file = "files/videos/mpeg/sample_1280x720.mpeg";
+        assert_eq!(check_file(mpeg_file), true, "Should detect mpeg video file");
+
+        let webm_file = "files/videos/webm/file_example_WEBM_640_1_4MB.webm";
+        assert_eq!(check_file(webm_file), true, "Should detect webm video file");
+    }
+
+    #[test]
+    //Test for the cumulative duration of a folder
+    fn test_folder_duration() {
+        //1. Check total duaration fo video sample folder
+        let video_folder = "files/videos/";
+        assert_eq!(
+            folder_duration(video_folder, 0),
+            133.266533,
+            "Expected the total seconds of the video files to be equal!"
+        );
+
+        //2. Check total duaration fo audio sample folder
+        let audios_folder = "files/audios/";
+        assert_eq!(
+            folder_duration(audios_folder, 0),
+            140.90975,
+            "Expected the total seconds of the audio files to be equal!"
+        );
+
+        //3. Check total duaration fo video+audio sample folder
+        let test_folder = "files/";
+        assert_eq!(
+            folder_duration(test_folder, 0),
+            274.176283,
+            "Expected the total seconds of the test folders to be equal!"
+        );
     }
 }
