@@ -1,3 +1,4 @@
+use std::env;
 use std::fs;
 use std::process::Command;
 
@@ -224,5 +225,25 @@ fn get_duration(file_path_str: &str) -> f64 {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_valid_folder_path() {
+        //get the cwd
+        let path = env::current_dir().unwrap();
+
+        let path_str = path.to_str().unwrap();
+        assert_eq!(
+            is_valid_path(path_str),
+            true,
+            "Expected a path to a valid folder current:{}",
+            path_str
+        )
     }
 }
