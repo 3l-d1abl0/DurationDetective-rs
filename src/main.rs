@@ -3,24 +3,14 @@ use std::process::Command;
 
 use clap::error::ErrorKind;
 use clap::{CommandFactory, Parser};
+
 use colored::Colorize;
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 
-#[derive(Parser)]
-#[command(name = "DurationDetective")]
-#[command(author = "Sameer sameer.barha12@gmail.com")]
-#[command(version = "1.0")]
-#[command(
-    about = "A tree like tool for media files",
-    long_about = "Generate tree like structure, specifing the duration of media files in each directory !"
-)]
-struct Cli {
-    #[arg(short, long)]
-    path: String,
-    #[arg(short, long, default_value_t = 0)]
-    write: usize,
-}
+mod cli;
+
+use cli::Cli;
 
 static SYMBOLS_MAP: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
     [("last", "└──"), ("normal", "├──")]
@@ -56,7 +46,7 @@ fn main() {
     //println!("write: {:?}", cli.write);
 
     //Extract the trimmed string
-    let path = cli.path.trim();
+    let path = cli.get_path().trim();
 
     println!("Path recieved: {}", path);
 
