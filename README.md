@@ -10,7 +10,7 @@
 Written in RUST🦀
 
 
-_This requires ffmpeg installed on the system_
+_This requires [ffmpeg](https://ffmpeg.org/) installed on the system_
 
 ## Installation:
 
@@ -34,6 +34,10 @@ If all goes well, the binary will be placed at _'target/release/`_
 make duration-detective-sample-run
 ```
 Ideally this is how you would run it:
+
+<video src="https://github.com/3l-d1abl0/DurationDetective-rs/assets/8142705/cabac374-a04f-423c-956e-018a68c30aa4"></video>
+
+
 
 ./duration-detective-rs --path="path/to/your/folder"
 
