@@ -23,12 +23,12 @@ pub fn folder_duration(directory_path: &str, folder_level: usize) -> f64 {
     while let Some(entry) = items_iter.next() {
         // Check if the next iteration is the last one
         let is_last = items_iter.peek().is_none();
-        let symbol: &str;
-        if is_last {
-            symbol = SYMBOLS_MAP.get("last").unwrap();
+    
+        let symbol: &str = if is_last {
+            SYMBOLS_MAP.get("last").unwrap()
         } else {
-            symbol = SYMBOLS_MAP.get("normal").unwrap();
-        }
+            SYMBOLS_MAP.get("normal").unwrap()
+        };
 
         let path = entry.unwrap().path();
         //println!("{}", path.display());
@@ -83,13 +83,9 @@ fn check_file(file_path_str: &str) -> bool {
             //println!("mime type: {}", info.mime_type());
             //println!("extension: {}", info.extension());
 
-            let mime_type: Vec<&str> = info.mime_type().split("/").collect();
+            let mime_type: Vec<&str> = info.mime_type().split('/').collect();
 
-            if mime_type[0] == "video" || mime_type[0] == "audio" {
-                true
-            } else {
-                false
-            }
+            mime_type[0] == "video" || mime_type[0] == "audio"
         }
         Ok(None) => {
             //eprintln!("Unknown file type 😞");
@@ -107,7 +103,7 @@ fn check_file(file_path_str: &str) -> bool {
 fn get_duration(file_path_str: &str) -> f64 {
     //Try ffprobe in the Shell
     let output_ffprobe = Command::new("ffprobe")
-        .args(&[
+        .args([
             "-v",
             "error",
             "-show_entries",
@@ -121,7 +117,7 @@ fn get_duration(file_path_str: &str) -> f64 {
 
     if !output_ffprobe.status.success() {
         println!("Command executed with failing error code");
-        return 0.0;
+        0.0
     } else {
         let duration_str = String::from_utf8_lossy(&output_ffprobe.stdout);
 
@@ -129,18 +125,18 @@ fn get_duration(file_path_str: &str) -> f64 {
 
         if duration == "N/A" {
             println!("Parsed duration: {}", duration);
-            return 0.0;
+            0.0
         } else {
             match duration.parse::<f64>() {
                 Ok(duration) => {
                     // Parsing successful, use the `duration` value
                     //println!("Parsed duration: {}", duration);
-                    return duration;
+                    duration
                 }
                 Err(err) => {
                     // Handle the parsing error
                     println!("Error parsing duration: {}", err);
-                    return 0.0;
+                    0.0
                 }
             }
         }

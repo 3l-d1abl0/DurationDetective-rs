@@ -1,6 +1,6 @@
 pub fn format_seconds(seconds: f64) -> String {
     let total_min = (seconds / 60.0) as i32;
-    let total_hr = (total_min / 60) as i32;
+    let total_hr = total_min / 60;
     let total_sec = (seconds % 60.0) as i32;
 
     if total_min < 1 {

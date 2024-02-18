@@ -22,7 +22,7 @@ fn main() {
 
     println!("Path recieved: {}", path);
 
-    if !is_valid_path(&path) {
+    if !is_valid_path(path) {
         let mut cmd = Cli::command();
         cmd.error(
             ErrorKind::ValueValidation,
@@ -37,6 +37,6 @@ fn main() {
 
     println!(
         "Total Folder Duration: {}",
-        format_seconds(folder_duration(&path, 0))
+        format_seconds(folder_duration(path, 0))
     );
 }
